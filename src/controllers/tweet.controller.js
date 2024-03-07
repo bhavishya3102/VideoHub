@@ -4,6 +4,7 @@ import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
+import { Like } from "../models/like.model.js"
 
 // $group operator in aggregate pipeline-
 //The $group stage also allows you to perform various operations 
@@ -26,6 +27,23 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 
 const createTweet = asyncHandler(async (req, res) => {
     //TODO: create tweet
+    const {content}=req.body;
+    const {userId}=req.user;
+
+    if(!content){
+        return new ApiError(400,"content are missing")
+    }
+
+    const tweet=await Tweet.create({
+        content:content,
+        owner:userId,
+        })
+
+        if(!tweet){
+            return  new ApiError(400,"failed to create the tweet")
+        }
+
+        return res.status(200).json(new ApiResponse(200,"successful created the tweet"))
 
 })
 
@@ -86,10 +104,33 @@ return res.status(200).json(new ApiResponse(200,tweetdetails,"get tweet details 
 
 const updateTweet = asyncHandler(async (req, res) => {
     //TODO: update tweet
+    const {tweetid}=req.params;
+    const {content}=req.body;
+
+    if(!tweetid){
+        return ApiError(400, "No Tweet ID Provided");
+    }
+    const updatetweet=await Tweet.findByIdAndUpdate({_id:tweetid,owner:req.user._id},{
+        content:content
+    },{new:true});
+
+    const updatedtweet=await Tweet.findById(tweetid);
+
+    return ApiResponse(200,updatedtweet,"Updated Tweet")
+
 })
 
 const deleteTweet = asyncHandler(async (req, res) => {
     //TODO: delete tweet
+    const {tweetid}=req.params;
+    // delete likes of tweet
+    await Like.deleteMany({tweet:tweetid});
+    // delete tweet itself
+    await Tweet.findByIdAndDelete({_id:tweetid,owner:req.user._id});
+
+return res.status(200).json(new ApiResponse(200,null,"delete tweet successfull"))
+
+
 })
 
 export {
