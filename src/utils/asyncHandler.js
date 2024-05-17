@@ -1,3 +1,5 @@
+// high order functions- that takes argument as function and return as function.
+
 const asyncHandler = (requestHandler) => {
     return (req, res, next) => {
         Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err))

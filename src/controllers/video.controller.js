@@ -13,6 +13,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   
     // pagination--
+    const sortTypeNum = Number(sortType)
+    const pageNum = Number(page)
+    const limitNum = Number(limit)
 
     // 1. Build filter object based on query parameters (if applicable)
     let filter = {};
@@ -23,13 +26,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
     // 2. Handle sorting criteria (optional)
     let sort = {};
     if (sortBy) {
-      sort[sortBy] = sortType === 'desc' ? -1 : 1;
+      sort[sortBy] = sortTypeNum === 'desc' ? -1 : 1;
     } else {
       sort = { createdAt: -1 }; // Default sort by creation date (descending)
     }
   
     // 3. Apply pagination
-    const skip = (page - 1) * limit;
+    const skip = (pageNum - 1) * limitNum;
   
     try {
       // 4. Fetch videos with filtering, sorting, and pagination

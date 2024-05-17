@@ -52,8 +52,10 @@ const userSchema = new Schema(
     }
 )
 
+// pre middleware or pre hook 
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) return next();
+    if(!this.isModified("password")) return next();// when the password not modified then call 
+    // the next middleware
 
     this.password = await bcrypt.hash(this.password, 10)
     next()
@@ -71,6 +73,7 @@ userSchema.methods.generateAccessToken = function(){
             email: this.email,
             username: this.username,
             fullName: this.fullName
+
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
